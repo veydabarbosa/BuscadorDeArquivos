@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import estruturas.ListaEncadeada;
 import estruturas.MapaDispersao;
+import estruturas.NoLista;
 import modelo.Documento;
 
 public class IndiceInvertido implements Serializable {
@@ -56,5 +57,58 @@ public class IndiceInvertido implements Serializable {
 
 	public ListaEncadeada<Documento> buscar(String palavra) {
 		return indice.buscar(palavra);
+	}
+
+	public ListaEncadeada<Documento> buscarTodas(String[] palavras) {
+		ListaEncadeada<Documento> resultado = null;
+
+		for (int i = 0; i < palavras.length; i++) {
+			ListaEncadeada<Documento> listaAtual = buscar(palavras[i]);
+
+			if (listaAtual == null) {
+				return null;
+			}
+
+			if (resultado == null) {
+				resultado = copiarLista(listaAtual);
+			} else {
+				resultado = interseccionar(resultado, listaAtual);
+			}
+		}
+
+		return resultado;
+	}
+
+	private ListaEncadeada<Documento> copiarLista(ListaEncadeada<Documento> listaOriginal) {
+		ListaEncadeada<Documento> copia = new ListaEncadeada<>();
+
+		NoLista<Documento> p = listaOriginal.getPrimeiro();
+
+		while (p != null) {
+			copia.inserirSeNaoExistir(p.getInfo());
+			p = p.getProximo();
+		}
+
+		return copia;
+	}
+
+	private ListaEncadeada<Documento> interseccionar(ListaEncadeada<Documento> lista1,
+			ListaEncadeada<Documento> lista2) {
+
+		ListaEncadeada<Documento> resultado = new ListaEncadeada<>();
+
+		NoLista<Documento> p = lista1.getPrimeiro();
+
+		while (p != null) {
+			Documento documento = p.getInfo();
+
+			if (lista2.buscar(documento) != null) {
+				resultado.inserirSeNaoExistir(documento);
+			}
+
+			p = p.getProximo();
+		}
+
+		return resultado;
 	}
 }
