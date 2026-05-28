@@ -46,10 +46,6 @@ public class MapaDispersao<K, T> implements Serializable {
 
 	public MapaDispersao(int tamanho) {
 		info = new ListaEncadeada[tamanho];
-
-		for (int i = 0; i < info.length; i++) {
-			info[i] = new ListaEncadeada<>();
-		}
 	}
 
 	private int calcularHash(K chave) {
@@ -59,6 +55,19 @@ public class MapaDispersao<K, T> implements Serializable {
 
 	public void inserir(K chave, T valor) {
 		int indice = calcularHash(chave); // descobre em qual posicao do vetor a chave vai ficar
+
+		/*
+		 * Como o construtor cria apenas o vetor, as posições começam como null.
+		 *
+		 * Então, antes de inserir, preciso verificar se já existe uma lista
+		 * encadeada nessa posição.
+		 *
+		 * Se não existir, crio a lista somente agora, quando ela realmente
+		 * vai ser usada.
+		 */
+		if (info[indice] == null) {
+			info[indice] = new ListaEncadeada<>();
+		}
 
 		NoMapa<K, T> no = new NoMapa<>(); // crio um novo nó
 		no.setChave(chave); // coloco chave no nó
@@ -71,22 +80,40 @@ public class MapaDispersao<K, T> implements Serializable {
 	public void remover(K chave) {
 		int indice = calcularHash(chave); // descobre em qual posicao do vetor a chave vai ficar
 
-		NoMapa<K, T> no = new NoMapa<>(); // crio um novo nó
-		no.setChave(chave); // coloco chave no nó
+		/*
+		 * Antes de remover, preciso verificar se existe lista naquela posição.
+		 *
+		 * Se info[indice] for null, significa que nunca foi inserido nada
+		 * naquela posição, então não tem o que remover.
+		 */
+		if (info[indice] != null) {
+			NoMapa<K, T> no = new NoMapa<>(); // crio um novo nó
+			no.setChave(chave); // coloco chave no nó
 
-		info[indice].retirar(no); // vou na lista da posição calculada e removo o no com aquela chave
+			info[indice].retirar(no); // vou na lista da posição calculada e removo o no com aquela chave
+		}
 	}
 
 	public T buscar(K chave) {
 		int indice = calcularHash(chave); // descobre em qual posiçao do vetor essa chave deveria estar
 
-		NoMapa<K, T> no = new NoMapa<>(); // crio um novo nó
-		no.setChave(chave); // coloco chave no nó
+		/*
+		 * Antes de buscar, preciso verificar se existe lista naquela posição.
+		 *
+		 * Se info[indice] for null, significa que não existe nenhum elemento
+		 * naquela posição do vetor.
+		 *
+		 * Então não tem como buscar dentro de uma lista que ainda não foi criada.
+		 */
+		if (info[indice] != null) {
+			NoMapa<K, T> no = new NoMapa<>(); // crio um novo nó
+			no.setChave(chave); // coloco chave no nó
 
-		NoMapa<K, T> encontrado = info[indice].buscar(no); // vai na lista daquela posiçao e procura o nó
+			NoMapa<K, T> encontrado = info[indice].buscar(no); // vai na lista daquela posiçao e procura o nó
 
-		if (encontrado != null) { // se achou
-			return encontrado.getValor(); // devolve o valor guardado
+			if (encontrado != null) { // se achou
+				return encontrado.getValor(); // devolve o valor guardado
+			}
 		}
 
 		return null; // se nao achou, retorna nulo
@@ -96,11 +123,23 @@ public class MapaDispersao<K, T> implements Serializable {
 		int quantidade = 0; // começo contando do zero;
 
 		for (int i = 0; i < info.length; i++) { // percorro todas as posicoes do vetor
-			NoLista<NoMapa<K, T>> p = info[i].getPrimeiro(); // pego o primeiro nó da lista daquela posição
 
-			while (p != null) { // enquanto tiver nó da lista, ele conta\
-				quantidade++;
-				p = p.getProximo();
+			/*
+			 * Como agora nem toda posição do vetor tem lista criada,
+			 * preciso verificar se info[i] é diferente de null.
+			 *
+			 * Se for null, significa que aquela posição nunca recebeu nenhum elemento.
+			 *
+			 * Se não fizer essa verificação, pode dar NullPointerException
+			 * ao tentar fazer info[i].getPrimeiro().
+			 */
+			if (info[i] != null) {
+				NoLista<NoMapa<K, T>> p = info[i].getPrimeiro(); // pego o primeiro nó da lista daquela posição
+
+				while (p != null) { // enquanto tiver nó da lista, ele conta
+					quantidade++;
+					p = p.getProximo();
+				}
 			}
 		}
 
