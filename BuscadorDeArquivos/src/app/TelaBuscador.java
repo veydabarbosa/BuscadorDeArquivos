@@ -23,24 +23,27 @@ public class TelaBuscador extends JFrame {
     private static final long serialVersionUID = 1L;
     private static final String ARQUIVO_INDICE = "indice.dat";
 
-    // ── Paleta cremosa ────────────────────────────────────────
-    private static final Color CREME        = new Color(255, 248, 240);
-    private static final Color CREME_ESCURO = new Color(247, 236, 224);
-    private static final Color CREME_CARD   = new Color(255, 252, 248);
-    private static final Color ROSA         = new Color(219, 145, 155);
-    private static final Color ROSA_CLARO   = new Color(242, 210, 215);
-    private static final Color ROSA_ESCURO  = new Color(190, 100, 115);
-    private static final Color MARSALA      = new Color(185, 110, 100);
-    private static final Color SAGE         = new Color(130, 165, 130);
-    private static final Color DOURADO      = new Color(200, 160, 100);
-    private static final Color TEXTO        = new Color(80,  55,  55);
-    private static final Color TEXTO_MUTED  = new Color(160, 130, 120);
-    private static final Color BORDA        = new Color(225, 200, 195);
+    // ── Paleta escura com toques mauve/rosa ───────────────────
+    private static final Color BG           = new Color(10,  10,  12);   // preto quase puro
+    private static final Color SURFACE      = new Color(18,  18,  22);   // superfície principal
+    private static final Color CARD         = new Color(24,  24,  30);   // cards
+    private static final Color ELEVATED     = new Color(32,  32,  40);   // elementos elevados
+    private static final Color BORDER       = new Color(45,  45,  55);   // bordas
+    private static final Color BORDER_FOCUS = new Color(180, 120, 150);  // borda ativa
+    private static final Color MAUVE        = new Color(200, 130, 160);  // acento principal
+    private static final Color MAUVE_DIM    = new Color(200, 130, 160, 40); // acento transparente
+    private static final Color MAUVE_BRIGHT = new Color(220, 160, 185);  // hover
+    private static final Color GREEN        = new Color(100, 190, 140);  // sucesso
+    private static final Color AMBER        = new Color(210, 165,  90);  // aviso
+    private static final Color TEXT         = new Color(235, 235, 240);  // texto primário
+    private static final Color TEXT_SUB     = new Color(120, 118, 130);  // texto secundário
+    private static final Color TEXT_MUTED   = new Color(65,  63,  75);   // texto apagado
 
     private JTextField campoDiretorio;
     private JTextField campoPesquisa;
     private JTextArea  areaResultado;
     private JLabel     statusLabel;
+    private JLabel     contadorLabel;
 
     private IndiceInvertido     indice;
     private IndexadorArquivos   indexador;
@@ -56,247 +59,262 @@ public class TelaBuscador extends JFrame {
         configurarLookAndFeel();
 
         setTitle("Buscador de Arquivos");
-        setSize(780, 660);
-        setMinimumSize(new Dimension(620, 520));
+        setSize(820, 640);
+        setMinimumSize(new Dimension(640, 500));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        getContentPane().setBackground(CREME);
+        getContentPane().setBackground(BG);
 
-        criarComponentes();
+        criarLayout();
     }
 
     private void configurarLookAndFeel() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (Exception ignored) {}
-        UIManager.put("OptionPane.background",        CREME_ESCURO);
-        UIManager.put("Panel.background",             CREME_ESCURO);
-        UIManager.put("OptionPane.messageForeground", TEXTO);
-        UIManager.put("Button.focus",                 new Color(0, 0, 0, 0));
-        UIManager.put("FileChooser.background",       CREME_ESCURO);
-        UIManager.put("FileChooser.foreground",       TEXTO);
+        try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); }
+        catch (Exception ignored) {}
+        UIManager.put("OptionPane.background",        CARD);
+        UIManager.put("Panel.background",             CARD);
+        UIManager.put("OptionPane.messageForeground", TEXT);
+        UIManager.put("Button.focus",                 new Color(0,0,0,0));
+        UIManager.put("FileChooser.background",       CARD);
+        UIManager.put("FileChooser.foreground",       TEXT);
     }
 
-    private void criarComponentes() {
+    private void criarLayout() {
         setLayout(new BorderLayout());
-        add(criarHeader(),   BorderLayout.NORTH);
-        add(criarCentro(),   BorderLayout.CENTER);
-        add(criarStatusBar(), BorderLayout.SOUTH);
+        add(criarTopBar(),  BorderLayout.NORTH);
+        add(criarBody(),    BorderLayout.CENTER);
+        add(criarFooter(),  BorderLayout.SOUTH);
     }
 
-    // ── Header ────────────────────────────────────────────────
-    private JPanel criarHeader() {
-        JPanel header = new JPanel() {
+    // ── Top bar ───────────────────────────────────────────────
+    private JPanel criarTopBar() {
+        JPanel bar = new JPanel(new BorderLayout()) {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(CREME_ESCURO);
+                g2.setColor(SURFACE);
                 g2.fillRect(0, 0, getWidth(), getHeight());
-                g2.setColor(BORDA);
+                g2.setColor(BORDER);
                 g2.drawLine(0, getHeight()-1, getWidth(), getHeight()-1);
                 g2.dispose();
             }
         };
-        header.setOpaque(false);
-        header.setLayout(new BorderLayout());
-        header.setBorder(new EmptyBorder(20, 36, 18, 36));
+        bar.setOpaque(false);
+        bar.setBorder(new EmptyBorder(14, 28, 14, 28));
 
-        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        left.setOpaque(false);
+        // Esquerda: nome do app
+        JLabel nome = new JLabel("Alunos: Nicole Bruch, Veyda C. Barbosa e Vitor W");
+        nome.setFont(new Font("SansSerif", Font.BOLD, 15));
+        nome.setForeground(TEXT);
 
-        JLabel flor = new JLabel("❀");
-        flor.setFont(new Font("Serif", Font.PLAIN, 24));
-        flor.setForeground(ROSA);
+        JLabel ponto = new JLabel(".");
+        ponto.setFont(new Font("SansSerif", Font.BOLD, 15));
+        ponto.setForeground(MAUVE);
 
-        JLabel titulo = new JLabel("Buscador de Arquivos");
-        titulo.setFont(new Font("Serif", Font.BOLD, 20));
-        titulo.setForeground(TEXTO);
+        JPanel esq = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        esq.setOpaque(false);
+        esq.add(nome);
+        esq.add(ponto);
 
-        left.add(flor);
-        left.add(titulo);
+        // Direita: badges
+        JPanel dir = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        dir.setOpaque(false);
+        dir.add(criarBadge("Índice invertido"));
+        dir.add(criarBadge("Lista encadeada"));
+        dir.add(criarBadge("Hash map"));
 
-        // Tags de estruturas à direita
-        JPanel tags = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
-        tags.setOpaque(false);
-        for (String t : new String[]{"Índice Invertido", "Hash Map", "Lista Encadeada"}) {
-            tags.add(criarTag(t));
-        }
-
-        header.add(left, BorderLayout.WEST);
-        header.add(tags, BorderLayout.EAST);
-        return header;
+        bar.add(esq, BorderLayout.WEST);
+        bar.add(dir, BorderLayout.EAST);
+        return bar;
     }
 
-    private JLabel criarTag(String texto) {
-        JLabel tag = new JLabel(texto) {
+    private JLabel criarBadge(String texto) {
+        JLabel b = new JLabel(texto) {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(ROSA_CLARO);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
+                g2.setColor(ELEVATED);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                g2.setColor(BORDER);
+                g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 6, 6);
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        tag.setFont(new Font("Serif", Font.PLAIN, 11));
-        tag.setForeground(ROSA_ESCURO);
-        tag.setBorder(new EmptyBorder(3, 10, 3, 10));
-        tag.setOpaque(false);
-        return tag;
+        b.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        b.setForeground(TEXT_SUB);
+        b.setBorder(new EmptyBorder(3, 9, 3, 9));
+        b.setOpaque(false);
+        return b;
     }
 
-    // ── Centro ────────────────────────────────────────────────
-    private JPanel criarCentro() {
-        // Painel externo com fundo creme
-        JPanel externo = new JPanel(new BorderLayout());
-        externo.setBackground(CREME);
-        externo.setBorder(new EmptyBorder(28, 40, 20, 40));
+    // ── Body ──────────────────────────────────────────────────
+    private JPanel criarBody() {
+        JPanel body = new JPanel(new BorderLayout(0, 16));
+        body.setBackground(BG);
+        body.setBorder(new EmptyBorder(28, 28, 16, 28));
 
-        // Coluna central
-        JPanel coluna = new JPanel();
-        coluna.setOpaque(false);
-        coluna.setLayout(new BoxLayout(coluna, BoxLayout.Y_AXIS));
+        // Título da página
+        JPanel titulo = new JPanel();
+        titulo.setOpaque(false);
+        titulo.setLayout(new BoxLayout(titulo, BoxLayout.Y_AXIS));
 
-        coluna.add(criarCardCampos());
-        coluna.add(Box.createVerticalStrut(16));
-        coluna.add(criarCardResultado());
+        JLabel h1 = new JLabel("Pesquisar arquivos");
+        h1.setFont(new Font("SansSerif", Font.BOLD, 24));
+        h1.setForeground(TEXT);
+        h1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        externo.add(coluna, BorderLayout.CENTER);
-        return externo;
+        JLabel sub = new JLabel("Indexe um diretório e busque por palavras nos documentos");
+        sub.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        sub.setForeground(TEXT_SUB);
+        sub.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        titulo.add(h1);
+        titulo.add(Box.createVerticalStrut(4));
+        titulo.add(sub);
+
+        // Painel de controles + resultado
+        JPanel centro = new JPanel(new BorderLayout(0, 12));
+        centro.setOpaque(false);
+        centro.add(criarPainelControles(), BorderLayout.NORTH);
+        centro.add(criarPainelResultado(), BorderLayout.CENTER);
+
+        body.add(titulo,  BorderLayout.NORTH);
+        body.add(centro,  BorderLayout.CENTER);
+        return body;
     }
 
-    // ── Card unificado de campos ──────────────────────────────
-    private JPanel criarCardCampos() {
-        JPanel card = criarCard();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setAlignmentX(Component.LEFT_ALIGNMENT);
+    // ── Controles ─────────────────────────────────────────────
+    private JPanel criarPainelControles() {
+        JPanel painel = new JPanel(new GridLayout(1, 2, 12, 0));
+        painel.setOpaque(false);
 
-        // ─ Seção: diretório ─
-        JLabel lblDir = criarRotulo("Diretório");
-        lblDir.setAlignmentX(Component.LEFT_ALIGNMENT);
+        // Card esquerdo: diretório
+        JPanel cardDir = criarCard();
+        cardDir.setLayout(new BorderLayout(0, 10));
 
-        campoDiretorio = criarTextField("Caminho da pasta...");
-        campoDiretorio.setAlignmentX(Component.LEFT_ALIGNMENT);
-        campoDiretorio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        JLabel lblDir = rotulo("Diretório");
+        campoDiretorio = criarInput("Caminho da pasta...");
 
         JPanel botoesDir = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
         botoesDir.setOpaque(false);
-        botoesDir.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JButton botaoEscolher = criarBotao("Escolher pasta",  ROSA,    false);
-        JButton botaoIndexar  = criarBotao("Indexar",         MARSALA, true);
-        JButton botaoCarregar = criarBotao("Carregar índice", DOURADO, false);
-        botoesDir.add(botaoEscolher);
-        botoesDir.add(botaoIndexar);
-        botoesDir.add(botaoCarregar);
+        JButton btEscolher = botao("Escolher",  false, MAUVE);
+        JButton btIndexar  = botao("Indexar",   true,  MAUVE);
+        JButton btCarregar = botao("Carregar",  false, AMBER);
+        botoesDir.add(btEscolher);
+        botoesDir.add(btIndexar);
+        botoesDir.add(btCarregar);
 
-        // Divisória interna
-        JSeparator divider = new JSeparator();
-        divider.setForeground(BORDA);
-        divider.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        divider.setAlignmentX(Component.LEFT_ALIGNMENT);
+        cardDir.add(lblDir,        BorderLayout.NORTH);
+        cardDir.add(campoDiretorio, BorderLayout.CENTER);
+        cardDir.add(botoesDir,     BorderLayout.SOUTH);
 
-        // ─ Seção: pesquisa ─
-        JLabel lblPesq = criarRotulo("Buscar palavras");
-        lblPesq.setAlignmentX(Component.LEFT_ALIGNMENT);
+        // Card direito: busca
+        JPanel cardBusca = criarCard();
+        cardBusca.setLayout(new BorderLayout(0, 10));
 
-        JPanel linhaPesq = new JPanel(new BorderLayout(8, 0));
-        linhaPesq.setOpaque(false);
-        linhaPesq.setAlignmentX(Component.LEFT_ALIGNMENT);
-        linhaPesq.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        JLabel lblBusca = rotulo("Buscar");
+        campoPesquisa = criarInput("Palavras-chave...");
 
-        campoPesquisa = criarTextField("Digite palavras-chave e pressione Enter...");
-        JButton botaoPesquisar = criarBotao("Pesquisar", ROSA, true);
+        JPanel btBuscaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        btBuscaPanel.setOpaque(false);
+        JButton btPesquisar = botao("Pesquisar", true, MAUVE);
+        btBuscaPanel.add(btPesquisar);
 
-        linhaPesq.add(campoPesquisa,  BorderLayout.CENTER);
-        linhaPesq.add(botaoPesquisar, BorderLayout.EAST);
+        cardBusca.add(lblBusca,      BorderLayout.NORTH);
+        cardBusca.add(campoPesquisa, BorderLayout.CENTER);
+        cardBusca.add(btBuscaPanel,  BorderLayout.SOUTH);
 
-        // Montar card
-        card.add(lblDir);
-        card.add(Box.createVerticalStrut(8));
-        card.add(campoDiretorio);
-        card.add(Box.createVerticalStrut(10));
-        card.add(botoesDir);
-        card.add(Box.createVerticalStrut(16));
-        card.add(divider);
-        card.add(Box.createVerticalStrut(16));
-        card.add(lblPesq);
-        card.add(Box.createVerticalStrut(8));
-        card.add(linhaPesq);
+        painel.add(cardDir);
+        painel.add(cardBusca);
 
-        // Ações
-        botaoEscolher.addActionListener(e  -> escolherDiretorio());
-        botaoIndexar.addActionListener(e   -> indexarDiretorio());
-        botaoCarregar.addActionListener(e  -> carregarIndice());
-        botaoPesquisar.addActionListener(e -> pesquisar());
-        campoPesquisa.addActionListener(e  -> pesquisar());
+        btEscolher.addActionListener(e  -> escolherDiretorio());
+        btIndexar.addActionListener(e   -> indexarDiretorio());
+        btCarregar.addActionListener(e  -> carregarIndice());
+        btPesquisar.addActionListener(e -> pesquisar());
+        campoPesquisa.addActionListener(e -> pesquisar());
 
-        return card;
+        return painel;
     }
 
-    // ── Card de resultado ─────────────────────────────────────
-    private JPanel criarCardResultado() {
+    // ── Resultado ─────────────────────────────────────────────
+    private JPanel criarPainelResultado() {
         JPanel card = criarCard();
         card.setLayout(new BorderLayout(0, 10));
-        card.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel lblRes = criarRotulo("Resultados");
+        // Header do card
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
 
+        JLabel lblRes = rotulo("Resultados");
+
+        contadorLabel = new JLabel("");
+        contadorLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        contadorLabel.setForeground(MAUVE);
+
+        header.add(lblRes,         BorderLayout.WEST);
+        header.add(contadorLabel,  BorderLayout.EAST);
+
+        // Área de texto
         areaResultado = new JTextArea();
         areaResultado.setEditable(false);
-        areaResultado.setBackground(CREME_ESCURO);
-        areaResultado.setForeground(TEXTO_MUTED);
-        areaResultado.setFont(new Font("Serif", Font.PLAIN, 14));
+        areaResultado.setBackground(ELEVATED);
+        areaResultado.setForeground(TEXT_SUB);
+        areaResultado.setFont(new Font("SansSerif", Font.PLAIN, 13));
         areaResultado.setLineWrap(true);
         areaResultado.setWrapStyleWord(true);
-        areaResultado.setBorder(new EmptyBorder(10, 12, 10, 12));
-        areaResultado.setCaretColor(ROSA);
+        areaResultado.setBorder(new EmptyBorder(12, 14, 12, 14));
+        areaResultado.setCaretColor(MAUVE);
         areaResultado.setText(
             "Nenhuma pesquisa realizada ainda.\n\n" +
-            "  1. Escolha uma pasta\n" +
-            "  2. Clique em Indexar\n" +
-            "  3. Digite palavras e pesquise"
+            "  →  Escolha um diretório\n" +
+            "  →  Clique em Indexar\n" +
+            "  →  Digite palavras e pesquise"
         );
 
         JScrollPane scroll = new JScrollPane(areaResultado);
         scroll.setOpaque(false);
         scroll.getViewport().setOpaque(false);
-        scroll.getViewport().setBackground(CREME_ESCURO);
-        scroll.setBorder(new LineBorder(BORDA, 1, true));
-        scroll.setPreferredSize(new Dimension(0, 220));
+        scroll.getViewport().setBackground(ELEVATED);
+        scroll.setBorder(new LineBorder(BORDER, 1, true));
         estilizarScrollBar(scroll.getVerticalScrollBar());
         estilizarScrollBar(scroll.getHorizontalScrollBar());
 
-        card.add(lblRes,  BorderLayout.NORTH);
-        card.add(scroll,  BorderLayout.CENTER);
-
+        card.add(header, BorderLayout.NORTH);
+        card.add(scroll, BorderLayout.CENTER);
         return card;
     }
 
-    // ── Status bar ────────────────────────────────────────────
-    private JPanel criarStatusBar() {
-        JPanel bar = new JPanel(new BorderLayout()) {
+    // ── Footer ────────────────────────────────────────────────
+    private JPanel criarFooter() {
+        JPanel footer = new JPanel(new BorderLayout()) {
             @Override protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                g.setColor(BORDA);
+                g.setColor(BORDER);
                 g.drawLine(0, 0, getWidth(), 0);
             }
         };
-        bar.setBackground(CREME_ESCURO);
-        bar.setBorder(new EmptyBorder(8, 36, 8, 36));
+        footer.setBackground(SURFACE);
+        footer.setBorder(new EmptyBorder(9, 28, 9, 28));
 
-        statusLabel = new JLabel("Pronto para usar");
-        statusLabel.setFont(new Font("Serif", Font.ITALIC, 12));
-        statusLabel.setForeground(TEXTO_MUTED);
+        statusLabel = new JLabel("Pronto");
+        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        statusLabel.setForeground(TEXT_MUTED);
 
-        bar.add(statusLabel, BorderLayout.WEST);
-        return bar;
+        JLabel versao = new JLabel("v1.0  —  Algoritmos & Estruturas de Dados");
+        versao.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        versao.setForeground(TEXT_MUTED);
+
+        footer.add(statusLabel, BorderLayout.WEST);
+        footer.add(versao,      BorderLayout.EAST);
+        return footer;
     }
 
     // ── Helpers UI ────────────────────────────────────────────
-    private JLabel criarRotulo(String texto) {
-        JLabel lbl = new JLabel(texto);
-        lbl.setFont(new Font("Serif", Font.BOLD, 13));
-        lbl.setForeground(ROSA_ESCURO);
-        return lbl;
+    private JLabel rotulo(String texto) {
+        JLabel l = new JLabel(texto);
+        l.setFont(new Font("SansSerif", Font.BOLD, 12));
+        l.setForeground(TEXT_SUB);
+        return l;
     }
 
     private JPanel criarCard() {
@@ -304,32 +322,32 @@ public class TelaBuscador extends JFrame {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CREME_CARD);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 14, 14));
-                g2.setColor(BORDA);
+                g2.setColor(CARD);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                g2.setColor(BORDER);
                 g2.setStroke(new BasicStroke(1f));
-                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth()-1, getHeight()-1, 14, 14));
+                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth()-1, getHeight()-1, 10, 10));
                 g2.dispose();
             }
         };
         card.setOpaque(false);
-        card.setBorder(new EmptyBorder(20, 22, 20, 22));
+        card.setBorder(new EmptyBorder(16, 18, 16, 18));
         return card;
     }
 
-    private JTextField criarTextField(String placeholder) {
+    private JTextField criarInput(String placeholder) {
         JTextField tf = new JTextField() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(CREME_ESCURO);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                g2.setColor(ELEVATED);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
                 g2.dispose();
                 super.paintComponent(g);
                 if (getText().isEmpty() && !isFocusOwner()) {
                     Graphics2D g3 = (Graphics2D) g.create();
-                    g3.setColor(TEXTO_MUTED);
-                    g3.setFont(getFont().deriveFont(Font.ITALIC));
+                    g3.setColor(TEXT_MUTED);
+                    g3.setFont(getFont());
                     FontMetrics fm = g3.getFontMetrics();
                     g3.drawString(placeholder, getInsets().left + 10,
                         (getHeight() - fm.getHeight()) / 2 + fm.getAscent());
@@ -338,28 +356,28 @@ public class TelaBuscador extends JFrame {
             }
         };
         tf.setOpaque(false);
-        tf.setBackground(CREME_ESCURO);
-        tf.setForeground(TEXTO);
-        tf.setCaretColor(ROSA);
-        tf.setFont(new Font("Serif", Font.PLAIN, 14));
+        tf.setBackground(ELEVATED);
+        tf.setForeground(TEXT);
+        tf.setCaretColor(MAUVE);
+        tf.setFont(new Font("SansSerif", Font.PLAIN, 13));
         tf.setBorder(new CompoundBorder(
-            new LineBorder(BORDA, 1, true),
-            new EmptyBorder(7, 10, 7, 10)
+            new LineBorder(BORDER, 1, true),
+            new EmptyBorder(8, 10, 8, 10)
         ));
         tf.addFocusListener(new FocusAdapter() {
             @Override public void focusGained(FocusEvent e) {
-                tf.setBorder(new CompoundBorder(new LineBorder(ROSA, 1, true), new EmptyBorder(7, 10, 7, 10)));
+                tf.setBorder(new CompoundBorder(new LineBorder(BORDER_FOCUS, 1, true), new EmptyBorder(8, 10, 8, 10)));
                 tf.repaint();
             }
             @Override public void focusLost(FocusEvent e) {
-                tf.setBorder(new CompoundBorder(new LineBorder(BORDA, 1, true), new EmptyBorder(7, 10, 7, 10)));
+                tf.setBorder(new CompoundBorder(new LineBorder(BORDER, 1, true), new EmptyBorder(8, 10, 8, 10)));
                 tf.repaint();
             }
         });
         return tf;
     }
 
-    private JButton criarBotao(String texto, Color cor, boolean preenchido) {
+    private JButton botao(String texto, boolean preenchido, Color cor) {
         JButton btn = new JButton(texto) {
             private boolean hover = false;
             {
@@ -372,35 +390,35 @@ public class TelaBuscador extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 if (preenchido) {
-                    g2.setColor(hover ? cor.darker() : cor);
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
+                    g2.setColor(hover ? MAUVE_BRIGHT : cor);
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
                 } else {
-                    g2.setColor(hover ? new Color(cor.getRed(), cor.getGreen(), cor.getBlue(), 35) : new Color(0,0,0,0));
-                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 8, 8);
-                    g2.setColor(cor);
-                    g2.setStroke(new BasicStroke(1.2f));
-                    g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 8, 8);
+                    g2.setColor(hover ? MAUVE_DIM : new Color(0,0,0,0));
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                    g2.setColor(hover ? MAUVE_BRIGHT : BORDER);
+                    g2.setStroke(new BasicStroke(1f));
+                    g2.drawRoundRect(0, 0, getWidth()-1, getHeight()-1, 6, 6);
                 }
                 g2.dispose();
                 super.paintComponent(g);
             }
         };
-        btn.setForeground(preenchido ? Color.WHITE : cor);
-        btn.setFont(new Font("Serif", Font.BOLD, 13));
+        btn.setForeground(preenchido ? BG : TEXT_SUB);
+        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setBorder(new EmptyBorder(7, 18, 7, 18));
+        btn.setBorder(new EmptyBorder(7, 16, 7, 16));
         return btn;
     }
 
     private void estilizarScrollBar(JScrollBar sb) {
-        sb.setBackground(CREME_CARD);
+        sb.setBackground(ELEVATED);
         sb.setUI(new BasicScrollBarUI() {
             @Override protected void configureScrollBarColors() {
-                thumbColor = ROSA_CLARO;
-                trackColor = CREME_CARD;
+                thumbColor = BORDER;
+                trackColor = ELEVATED;
             }
             @Override protected JButton createDecreaseButton(int o) { return invisivel(); }
             @Override protected JButton createIncreaseButton(int o) { return invisivel(); }
@@ -412,27 +430,27 @@ public class TelaBuscador extends JFrame {
             @Override protected void paintThumb(Graphics g, JComponent c, Rectangle r) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(ROSA_CLARO);
-                g2.fillRoundRect(r.x+2, r.y+2, r.width-4, r.height-4, 8, 8);
+                g2.setColor(new Color(80, 75, 95));
+                g2.fillRoundRect(r.x+2, r.y+2, r.width-4, r.height-4, 6, 6);
                 g2.dispose();
             }
         });
     }
 
-    // ── Lógica (inalterada) ───────────────────────────────────
+    // ── Lógica ────────────────────────────────────────────────
     private void setStatus(String msg) { statusLabel.setText(msg); }
 
-    private void setResultadoTexto(String texto, Color cor) {
+    private void setResultado(String texto, Color cor) {
         areaResultado.setForeground(cor);
         areaResultado.setText(texto);
     }
 
     private void escolherDiretorio() {
-        JFileChooser seletor = new JFileChooser();
-        seletor.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        if (seletor.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            campoDiretorio.setText(seletor.getSelectedFile().getAbsolutePath());
-            setStatus("Diretório selecionado.");
+        JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            campoDiretorio.setText(fc.getSelectedFile().getAbsolutePath());
+            setStatus("Diretório selecionado");
         }
     }
 
@@ -442,17 +460,18 @@ public class TelaBuscador extends JFrame {
             JOptionPane.showMessageDialog(this, "Informe ou escolha um diretório.", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        setStatus("Indexando arquivos...");
-        setResultadoTexto("Indexando: " + caminho + "\n\nAguarde...", TEXTO_MUTED);
+        setStatus("Indexando...");
+        contadorLabel.setText("");
+        setResultado("Indexando arquivos em:\n" + caminho + "\n\nAguarde...", TEXT_SUB);
         SwingUtilities.invokeLater(() -> {
             try {
                 indice = new IndiceInvertido();
                 indexador.indexarDiretorio(caminho, indice);
                 persistencia.salvar(indice, ARQUIVO_INDICE);
-                setStatus("Indexação concluída. Índice salvo.");
-                setResultadoTexto("Indexação concluída!\n\nÍndice salvo em: " + ARQUIVO_INDICE + "\n\nPronto para pesquisar.", SAGE);
+                setStatus("Indexação concluída — índice salvo");
+                setResultado("Indexação concluída.\n\nÍndice salvo em: " + ARQUIVO_INDICE + "\nPronto para pesquisar.", GREEN);
             } catch (IOException e) {
-                setStatus("Erro ao indexar.");
+                setStatus("Erro ao indexar");
                 JOptionPane.showMessageDialog(this, "Erro:\n" + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
@@ -461,13 +480,13 @@ public class TelaBuscador extends JFrame {
     private void carregarIndice() {
         try {
             indice = persistencia.carregar(ARQUIVO_INDICE);
-            setStatus("Índice carregado.");
-            setResultadoTexto("Índice carregado com sucesso!\n\nPronto para pesquisar.", SAGE);
+            setStatus("Índice carregado");
+            setResultado("Índice carregado.\nPronto para pesquisar.", GREEN);
         } catch (IOException e) {
-            setStatus("Erro ao carregar índice.");
+            setStatus("Erro ao carregar índice");
             JOptionPane.showMessageDialog(this, "Erro:\n" + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         } catch (ClassNotFoundException e) {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar classe do índice.", "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Erro ao carregar classe.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -479,47 +498,43 @@ public class TelaBuscador extends JFrame {
         }
 
         String[] brutas = pesquisa.split("\\s+");
-        String[] normalizadas = new String[brutas.length];
+        String[] norm   = new String[brutas.length];
         int validas = 0;
-
         for (String b : brutas) {
             String p = normalizador.normalizar(b);
-            if (p != null) normalizadas[validas++] = p;
+            if (p != null) norm[validas++] = p;
         }
 
-        if (validas == 0) {
-            setResultadoTexto("Nenhuma palavra válida informada.", TEXTO_MUTED);
-            return;
-        }
+        if (validas == 0) { setResultado("Nenhuma palavra válida.", TEXT_SUB); return; }
 
         String[] busca = new String[validas];
-        for (int i = 0; i < validas; i++) busca[i] = normalizadas[i];
+        for (int i = 0; i < validas; i++) busca[i] = norm[i];
 
-        ListaEncadeada<Documento> resultado = validas == 1
+        ListaEncadeada<Documento> res = validas == 1
             ? indice.buscar(busca[0])
             : indice.buscarTodas(busca);
 
-        mostrarResultado(resultado, pesquisa);
+        mostrarResultado(res, pesquisa);
     }
 
-    private void mostrarResultado(ListaEncadeada<Documento> documentos, String pesquisa) {
-        if (documentos == null || documentos.estaVazia()) {
-            setStatus("Nenhum resultado para \"" + pesquisa + "\".");
-            setResultadoTexto("Nenhum documento encontrado para:\n\"" + pesquisa + "\"", TEXTO_MUTED);
+    private void mostrarResultado(ListaEncadeada<Documento> docs, String pesquisa) {
+        if (docs == null || docs.estaVazia()) {
+            setStatus("Nenhum resultado");
+            contadorLabel.setText("0 resultados");
+            setResultado("Nenhum documento encontrado para:\n\"" + pesquisa + "\"", TEXT_SUB);
             return;
         }
-
         StringBuilder sb = new StringBuilder();
         int count = 0;
-        NoLista<Documento> p = documentos.getPrimeiro();
+        NoLista<Documento> p = docs.getPrimeiro();
         while (p != null) {
             count++;
-            sb.append(count).append(".  ").append(p.getInfo().getCaminho()).append("\n");
+            sb.append(count).append("   ").append(p.getInfo().getCaminho()).append("\n");
             p = p.getProximo();
         }
-
-        setStatus(count + " documento(s) encontrado(s).");
-        setResultadoTexto(count + " resultado(s) para: \"" + pesquisa + "\"\n\n" + sb, TEXTO);
+        setStatus("Pesquisa concluída");
+        contadorLabel.setText(count + " resultado" + (count > 1 ? "s" : ""));
+        setResultado(sb.toString(), TEXT);
     }
 
     public static void main(String[] args) {
