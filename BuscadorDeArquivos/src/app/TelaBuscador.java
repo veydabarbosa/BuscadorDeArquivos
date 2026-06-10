@@ -113,7 +113,7 @@ public class TelaBuscador extends JFrame {
         bar.setOpaque(false);
         bar.setBorder(new EmptyBorder(14, 28, 14, 28));
 
-        JLabel nome = new JLabel("buscador");
+        JLabel nome = new JLabel("Alunos: Nicole Bruch, Veyda C. Barbosa e Vitor W");
         nome.setFont(new Font("SansSerif", Font.BOLD, 15));
         nome.setForeground(TEXT);
 
@@ -163,12 +163,12 @@ public class TelaBuscador extends JFrame {
         titulo.setOpaque(false);
         titulo.setLayout(new BoxLayout(titulo, BoxLayout.Y_AXIS));
 
-        JLabel h1 = new JLabel("Pesquisar arquivos");
+        JLabel h1 = new JLabel("Pesquisar arquivos:");
         h1.setFont(new Font("SansSerif", Font.BOLD, 24));
         h1.setForeground(TEXT);
         h1.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JLabel sub = new JLabel("Indexe um diretório e busque por palavras nos documentos");
+        JLabel sub = new JLabel("Indexe um diretório e busque por palavras nos documentos :)");
         sub.setFont(new Font("SansSerif", Font.PLAIN, 13));
         sub.setForeground(TEXT_SUB);
         sub.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -308,11 +308,11 @@ public class TelaBuscador extends JFrame {
         footer.setBorder(new EmptyBorder(9, 28, 9, 28));
 
         // atualizado dinamicamente conforme o usuário usa a aplicação
-        statusLabel = new JLabel("Pronto");
+        statusLabel = new JLabel("FURB - Universidade Regional de Blumenau");
         statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         statusLabel.setForeground(TEXT_MUTED);
 
-        JLabel versao = new JLabel("v1.0  —  Algoritmos & Estruturas de Dados");
+        JLabel versao = new JLabel("v1.0 - Algoritmos & Estruturas de Dados");
         versao.setFont(new Font("SansSerif", Font.PLAIN, 11));
         versao.setForeground(TEXT_MUTED);
 
