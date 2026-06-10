@@ -95,7 +95,7 @@ public class TelaBuscador extends JFrame {
         add(criarFooter(),   BorderLayout.SOUTH);
     }
 
-    // Top bar 
+    // ── Top bar ───────────────────────────────────────────────
 
     private JPanel criarTopBar() {
         // sobrescreve o paintComponent pra desenhar o fundo e a linha divisória manualmente
@@ -127,15 +127,7 @@ public class TelaBuscador extends JFrame {
         esq.add(nome);
         esq.add(ponto);
 
-        // badges das estruturas usadas no projeto — fica no canto direito da barra
-        JPanel dir = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        dir.setOpaque(false);
-        dir.add(criarBadge("índice invertido"));
-        dir.add(criarBadge("lista encadeada"));
-        dir.add(criarBadge("hash map"));
-
         bar.add(esq, BorderLayout.WEST);
-        bar.add(dir, BorderLayout.EAST);
         return bar;
     }
 
@@ -160,7 +152,7 @@ public class TelaBuscador extends JFrame {
         return b;
     }
 
-    // Body 
+    // ── Body ──────────────────────────────────────────────────
 
     private JPanel criarBody() {
         JPanel body = new JPanel(new BorderLayout(0, 16));
@@ -195,7 +187,7 @@ public class TelaBuscador extends JFrame {
         return body;
     }
 
-    // Controles
+    // ── Controles ─────────────────────────────────────────────
 
     private JPanel criarPainelControles() {
         // GridLayout(1, 2) cria duas colunas de tamanho igual — perfeito pra dividir diretório e busca lado a lado
@@ -251,7 +243,7 @@ public class TelaBuscador extends JFrame {
         return painel;
     }
 
-    // Resultado
+    // ── Resultado ─────────────────────────────────────────────
 
     private JPanel criarPainelResultado() {
         JPanel card = criarCard();
@@ -301,7 +293,7 @@ public class TelaBuscador extends JFrame {
         return card;
     }
 
-    // Footer 
+    // ── Footer ────────────────────────────────────────────────
 
     private JPanel criarFooter() {
         JPanel footer = new JPanel(new BorderLayout()) {
@@ -329,7 +321,8 @@ public class TelaBuscador extends JFrame {
         return footer;
     }
 
-    // Helpers UI
+    // ── Helpers UI ────────────────────────────────────────────
+
     private JLabel rotulo(String texto) {
         JLabel l = new JLabel(texto);
         l.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -465,7 +458,7 @@ public class TelaBuscador extends JFrame {
         });
     }
 
-    // Lógica
+    // ── Lógica ────────────────────────────────────────────────
 
     private void setStatus(String msg) { statusLabel.setText(msg); }
 
