@@ -163,7 +163,7 @@ public class TelaBuscador extends JFrame {
         titulo.setOpaque(false);
         titulo.setLayout(new BoxLayout(titulo, BoxLayout.Y_AXIS));
 
-        JLabel h1 = new JLabel("Pesquisar arquivos:");
+        JLabel h1 = new JLabel("Pesquisar arquivos");
         h1.setFont(new Font("SansSerif", Font.BOLD, 24));
         h1.setForeground(TEXT);
         h1.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -312,7 +312,7 @@ public class TelaBuscador extends JFrame {
         statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
         statusLabel.setForeground(TEXT_MUTED);
 
-        JLabel versao = new JLabel("v1.0 - Algoritmos & Estruturas de Dados");
+        JLabel versao = new JLabel("Trabalho final - Algoritmos & Estruturas de Dados");
         versao.setFont(new Font("SansSerif", Font.PLAIN, 11));
         versao.setForeground(TEXT_MUTED);
 
