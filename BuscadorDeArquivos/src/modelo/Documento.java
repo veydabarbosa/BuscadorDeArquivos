@@ -3,31 +3,8 @@ package modelo;
 import java.io.Serializable;
 import java.util.Objects;
 
-/*
- * Esta classe representa um arquivo de texto indexado pelo programa.
- *
- * Cada objeto Documento guarda o caminho de um arquivo .txt encontrado
- * durante a indexação.
- *
- * No índice invertido, cada palavra ficará associada a uma lista de documentos.
- *
- * Exemplo:
- *
- * "java" -> [aula1.txt] -> [resumo.txt]
- *
- * Isso significa que a palavra "java" aparece nos arquivos aula1.txt e resumo.txt.
- *
- * Esta classe implementa Serializable porque objetos Documento serão armazenados
- * dentro do índice. Como o trabalho exige salvar o índice em arquivo no disco
- * e carregar depois sem reindexar tudo, os documentos também precisam ser
- * serializáveis.
- */
 public class Documento implements Serializable {
 
-    /*
-     * Identificador de versão usado pelo Java no processo de salvar e carregar
-     * objetos desta classe.
-     */
     private static final long serialVersionUID = 1L;
 
     private String caminho;
@@ -49,8 +26,7 @@ public class Documento implements Serializable {
 		return Objects.hash(caminho);
 	}
 
-	@Override // vou no source (shift + alt _ s) e clico em generate hashcode + equals pra
-	// gerar isso e eu nao me preocupar
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
