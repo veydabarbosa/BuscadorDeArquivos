@@ -1,2 +1,0 @@
-Mapa de dispersao ajuda na busca.
-Pilha fila e arvore tambem sao estruturas.

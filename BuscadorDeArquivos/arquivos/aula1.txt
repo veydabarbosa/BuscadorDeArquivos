@@ -1,2 +1,0 @@
-Java usa mapa de dispersao.
-Java tambem usa lista encadeada.
